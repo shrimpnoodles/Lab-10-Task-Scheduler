@@ -18,6 +18,7 @@
 //---shared variables----
 unsigned char doorLock = 0x00;
 unsigned char button = 0x00;
+unsigned char lockButton;
 //---
 
 //enumeration of states
@@ -131,7 +132,7 @@ int LockOrUnlock_Tick(int state){
 			 }
 			break;
 		case unlock:
-			if(button != '\0'){
+			if(lockButton == 0x80){
 				state = lock;
 			}
 			break;
@@ -174,6 +175,9 @@ int main(void) {
 	DDRA = 0x00; PORTA = 0xff;
 	DDRB = 0XFF; PORTB = 0X00;
 	DDRC = 0XF0; PORTC = 0X0F;
+	
+	lockButton = 0x00;
+	
 
 	static task task1, task2;
 	task *tasks[] = {&task1, &task2};
@@ -215,6 +219,7 @@ const unsigned short numTasks = sizeof(tasks)/sizeof(task*);
 
     /* Insert your solution below */
     while (1) {
+	lockButton = ~PINA;
 	for(i=0; i<numTasks; i++){
 		if(tasks[i]->elapsedTime == tasks[i]->period){
 			tasks[i]->state = tasks[i]->TickFct(tasks[i]->state);
